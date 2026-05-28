@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Legion Thesis Card — All Four</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap');
+  :root{
+    --bg:#08090d;--panel:#0e1018;--border:#1e2235;
+    --gold:#f0b429;--red:#ff4d6d;
+    --green:#00e5a0;--teal:#00c2a8;--blue:#4dabf7;
+    --muted:#4a5070;--text:#c8d0e8;--text-dim:#6b7799;--white:#f0f2ff;
+    --quai:#FF6B2B;--hl:#00BFFF;--sol:#9945FF;--eth:#627EEA;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);min-height:100vh;padding:28px 18px 60px;position:relative;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(30,34,53,0.35) 1px,transparent 1px),linear-gradient(90deg,rgba(30,34,53,0.35) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+  .wrapper{max-width:900px;margin:0 auto;position:relative;z-index:1}
+
+  .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--border)}
+  .logo-tag{font-family:'Space Mono',monospace;font-size:10px;color:var(--gold);background:rgba(240,180,41,0.1);border:1px solid rgba(240,180,41,0.25);padding:4px 10px;letter-spacing:2px;border-radius:2px}
+  .logo-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--white);letter-spacing:-0.5px;margin-left:10px}
+  .logo-title span{color:var(--gold)}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite;display:inline-block;margin-right:6px}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+  /* NAV TABS — 4 assets */
+  .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:22px}
+  .tab{padding:12px 8px;border-radius:10px;border:2px solid var(--border);cursor:pointer;text-align:center;transition:all 0.2s;user-select:none;background:var(--panel)}
+  .tab-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;display:block}
+  .tab-sub{font-size:9px;font-family:'Space Mono',monospace;letter-spacing:0.5px;margin-top:3px;display:block;opacity:0.55;line-height:1.3}
+  .tab-quai{border-color:rgba(255,107,43,0.3)}.tab-quai.active{border-color:var(--quai);background:rgba(255,107,43,0.08)}.tab-quai .tab-name{color:var(--quai)}
+  .tab-hl{border-color:rgba(0,191,255,0.3)}.tab-hl.active{border-color:var(--hl);background:rgba(0,191,255,0.08)}.tab-hl .tab-name{color:var(--hl)}
+  .tab-sol{border-color:rgba(153,69,255,0.3)}.tab-sol.active{border-color:var(--sol);background:rgba(153,69,255,0.08)}.tab-sol .tab-name{color:var(--sol)}
+  .tab-eth{border-color:rgba(98,126,234,0.3)}.tab-eth.active{border-color:var(--eth);background:rgba(98,126,234,0.08)}.tab-eth .tab-name{color:var(--eth)}
+
+  /* SUMMARY ROW — always visible */
+  .summary-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:22px}
+  .sum-card{border-radius:10px;border:1px solid var(--border);padding:12px 14px;background:var(--panel);cursor:pointer;transition:all 0.2s}
+  .sum-card:hover{border-color:rgba(255,255,255,0.15)}
+  .sum-card.active-sum-quai{border-color:var(--quai);background:rgba(255,107,43,0.06)}
+  .sum-card.active-sum-hl{border-color:var(--hl);background:rgba(0,191,255,0.06)}
+  .sum-card.active-sum-sol{border-color:var(--sol);background:rgba(153,69,255,0.06)}
+  .sum-card.active-sum-eth{border-color:var(--eth);background:rgba(98,126,234,0.06)}
+  .sum-asset{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;margin-bottom:5px}
+  .sum-score{font-family:'Space Mono',monospace;font-size:22px;font-weight:700}
+  .sum-label{font-size:9px;font-family:'Space Mono',monospace;letter-spacing:1px;color:var(--text-dim);margin-top:2px}
+  .sum-tag{font-size:9px;font-family:'Space Mono',monospace;padding:2px 7px;border-radius:3px;margin-top:6px;display:inline-block}
+  .sum-bar{height:3px;border-radius:2px;margin-top:8px}
+
+  .panel{display:none}.panel.active{display:block}
+
+  .section-div{display:flex;align-items:center;gap:12px;margin:18px 0 10px}
+  .section-div span{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--muted);white-space:nowrap}
+  .section-div::before,.section-div::after{content:'';flex:1;height:1px;background:var(--border)}
+
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:10px}
+  .card-head{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.02)}
+  .card-icon{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+  .card-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase}
+  .card-sub{font-size:10px;color:var(--text-dim);margin-left:auto;font-family:'Space Mono',monospace}
+  .card-body{padding:14px 16px}
+
+  .c-quai .card-icon{background:rgba(255,107,43,0.12)}.c-quai .card-label{color:var(--quai)}
+  .c-hl   .card-icon{background:rgba(0,191,255,0.12)} .c-hl   .card-label{color:var(--hl)}
+  .c-sol  .card-icon{background:rgba(153,69,255,0.12)}.c-sol  .card-label{color:var(--sol)}
+  .c-eth  .card-icon{background:rgba(98,126,234,0.12)}.c-eth  .card-label{color:var(--eth)}
+  .c-gold .card-icon{background:rgba(240,180,41,0.12)}.c-gold .card-label{color:var(--gold)}
+  .c-red  .card-icon{background:rgba(255,77,109,0.12)} .c-red  .card-label{color:var(--red)}
+  .c-teal .card-icon{background:rgba(0,194,168,0.12)}  .c-teal .card-label{color:var(--teal)}
+  .c-blue .card-icon{background:rgba(77,171,247,0.12)}  .c-blue .card-label{color:var(--blue)}
+
+  .field-val{font-size:14px;color:var(--white);line-height:1.65}
+  .field-val.big{font-family:'Syne',sans-serif;font-size:20px;font-weight:800}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:580px){.two-col{grid-template-columns:1fr}.tabs{grid-template-columns:1fr 1fr}.summary-row{grid-template-columns:1fr 1fr}}
+
+  .m-row{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start}
+  .m-row:last-child{margin-bottom:0}
+  .m-num{font-family:'Space Mono',monospace;font-size:10px;width:22px;height:22px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+  .m-q{background:rgba(255,107,43,0.1);color:var(--quai);border:1px solid rgba(255,107,43,0.3)}
+  .m-h{background:rgba(0,191,255,0.1);color:var(--hl);border:1px solid rgba(0,191,255,0.3)}
+  .m-s{background:rgba(153,69,255,0.1);color:var(--sol);border:1px solid rgba(153,69,255,0.3)}
+  .m-e{background:rgba(98,126,234,0.1);color:var(--eth);border:1px solid rgba(98,126,234,0.3)}
+
+  .stack-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+  .stack-btn{border:1px solid var(--border);border-radius:8px;padding:9px 5px;text-align:center}
+  .stack-num{font-family:'Space Mono',monospace;font-size:15px;font-weight:700;display:block;margin-bottom:3px}
+  .stack-label{font-size:8.5px;color:var(--text-dim);line-height:1.4}
+  .stack-badge{font-size:7.5px;padding:2px 5px;border-radius:3px;margin-top:4px;display:inline-block;font-family:'Space Mono',monospace}
+  .aL1{border-color:var(--green)!important;background:rgba(0,229,160,0.08)!important}
+  .aL2{border-color:var(--teal)!important;background:rgba(0,194,168,0.08)!important}
+  .aL3{border-color:var(--blue)!important;background:rgba(77,171,247,0.08)!important}
+  .L1 .stack-num{color:var(--green)}.L2 .stack-num{color:var(--teal)}.L3 .stack-num{color:var(--blue)}.L4 .stack-num{color:var(--gold)}.L5 .stack-num{color:var(--red)}
+  .L1 .stack-badge{background:rgba(0,229,160,0.12);color:var(--green)}
+  .L2 .stack-badge{background:rgba(0,194,168,0.12);color:var(--teal)}
+  .L3 .stack-badge{background:rgba(77,171,247,0.12);color:var(--blue)}
+  .L4 .stack-badge{background:rgba(240,180,41,0.12);color:var(--gold)}
+  .L5 .stack-badge{background:rgba(255,77,109,0.12);color:var(--red)}
+
+  .lc-track{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  .lc-step{border:1px solid var(--border);border-radius:8px;padding:9px 6px;text-align:center}
+  .lc-emoji{font-size:17px;display:block;margin-bottom:3px}
+  .lc-name{font-size:9.5px;font-family:'Space Mono',monospace}
+  .lc-desc{font-size:8px;color:var(--text-dim);margin-top:2px;line-height:1.35}
+  .a-emerging{border-color:var(--green)!important;background:rgba(0,229,160,0.08)!important}
+  .a-accel{border-color:var(--gold)!important;background:rgba(240,180,41,0.08)!important}
+
+  .ev-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+  .ev-row:last-child{margin-bottom:0}
+  .ev-check{width:20px;height:20px;border-radius:5px;border:2px solid;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+  .ck-q{border-color:var(--quai);background:rgba(255,107,43,0.15);color:var(--quai)}
+  .ck-h{border-color:var(--hl);background:rgba(0,191,255,0.15);color:var(--hl)}
+  .ck-s{border-color:var(--sol);background:rgba(153,69,255,0.15);color:var(--sol)}
+  .ck-e{border-color:var(--eth);background:rgba(98,126,234,0.15);color:var(--eth)}
+  .ev-label{font-size:13px;color:var(--white)}
+  .ev-sub{font-size:11px;color:var(--text-dim)}
+
+  .risk-grid{display:flex;flex-wrap:wrap;gap:6px}
+  .risk-pill{border-radius:6px;padding:5px 11px;font-size:11px}
+  .risk-on{border:1px solid var(--red);background:rgba(255,77,109,0.1);color:var(--red)}
+  .risk-off{border:1px solid var(--border);color:var(--text-dim)}
+
+  .surf-grid{display:flex;flex-wrap:wrap;gap:6px}
+  .surf-tag{border-radius:6px;padding:5px 12px;font-size:11px}
+  .surf-on{border:1px solid var(--teal);background:rgba(0,194,168,0.1);color:var(--teal)}
+  .surf-warn{border:1px solid var(--red);background:rgba(255,77,109,0.1);color:var(--red)}
+  .surf-off{border:1px solid var(--border);color:var(--text-dim)}
+
+  .trend-pill{border-radius:20px;padding:7px 16px;font-size:12px;display:inline-block;margin-right:7px;margin-bottom:6px}
+  .tp-sector{background:var(--blue);color:var(--bg);font-weight:600}
+  .tp-narrative{background:var(--gold);color:var(--bg);font-weight:600}
+  .tp-off{border:1px solid var(--border);color:var(--text-dim)}
+
+  .verdict-bar{border:1px solid var(--border);border-radius:12px;padding:18px 20px;background:var(--panel);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:6px}
+  .v-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase}
+  .v-score{font-family:'Syne',sans-serif;font-size:32px;font-weight:800}
+  .v-tag{font-family:'Space Mono',monospace;font-size:10px;padding:5px 12px;border-radius:4px;letter-spacing:1.5px}
+  .v-note{font-size:11px;color:var(--text-dim);font-style:italic;width:100%;border-top:1px solid var(--border);padding-top:10px;margin-top:4px}
+  .s-high{color:var(--green)}.s-mid{color:var(--gold)}
+  .t-high{background:rgba(0,229,160,0.12);border:1px solid var(--green);color:var(--green)}
+  .t-mid{background:rgba(240,180,41,0.12);border:1px solid var(--gold);color:var(--gold)}
+
+  .cat-label{font-size:9.5px;letter-spacing:2px;font-family:'Space Mono',monospace;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+
+  .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  @media(max-width:480px){.info-grid{grid-template-columns:1fr 1fr}}
+  .info-box{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+  .ib-label{font-size:9px;letter-spacing:1.5px;font-family:'Space Mono',monospace;color:var(--text-dim);margin-bottom:5px}
+  .ib-val{font-size:13px;color:var(--white);font-weight:500}
+
+  .warn-box{background:rgba(255,77,109,0.06);border:1px solid rgba(255,77,109,0.25);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--red);margin-top:10px;font-family:'Space Mono',monospace;line-height:1.6}
+  .ok-box{background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.25);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--green);margin-top:10px;font-family:'Space Mono',monospace;line-height:1.6}
+  .caution-box{background:rgba(240,180,41,0.06);border:1px solid rgba(240,180,41,0.25);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--gold);margin-top:10px;font-family:'Space Mono',monospace;line-height:1.6}
+
+  .badge{font-size:10px;font-family:'Space Mono',monospace;padding:3px 9px;border-radius:4px}
+  .bq{background:rgba(255,107,43,0.1);color:var(--quai);border:1px solid rgba(255,107,43,0.2)}
+  .bh{background:rgba(0,191,255,0.1);color:var(--hl);border:1px solid rgba(0,191,255,0.2)}
+  .bs{background:rgba(153,69,255,0.1);color:var(--sol);border:1px solid rgba(153,69,255,0.2)}
+  .be{background:rgba(98,126,234,0.1);color:var(--eth);border:1px solid rgba(98,126,234,0.2)}
+  .bg{background:rgba(0,229,160,0.1);color:var(--green);border:1px solid rgba(0,229,160,0.2)}
+  .bgold{background:rgba(240,180,41,0.1);color:var(--gold);border:1px solid rgba(240,180,41,0.2)}
+  .br{background:rgba(255,77,109,0.1);color:var(--red);border:1px solid rgba(255,77,109,0.2)}
+  .bt{background:rgba(0,194,168,0.1);color:var(--teal);border:1px solid rgba(0,194,168,0.2)}
+  .bb{background:rgba(77,171,247,0.1);color:var(--blue);border:1px solid rgba(77,171,247,0.2)}
+
+  .export-btn{display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,var(--gold),#e09000);border:none;border-radius:8px;padding:12px 22px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--bg);cursor:pointer;margin-top:20px;width:100%;transition:opacity 0.2s}
+  .export-btn:hover{opacity:0.88}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+<!-- HEADER -->
+<div class="header">
+  <div style="display:flex;align-items:center">
+    <span class="logo-tag">LEGION</span>
+    <span class="logo-title" style="margin-left:10px">Portfolio <span>Thesis</span></span>
+  </div>
+  <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text-dim)">
+    <span class="dot"></span>QUAD THESIS — 2025
+  </div>
+</div>
+
+<!-- ALWAYS-VISIBLE SUMMARY ROW -->
+<div class="summary-row" id="sum-row">
+  <div class="sum-card active-sum-quai" onclick="switchTab('quai')">
+    <div class="sum-asset" style="color:var(--quai)">⛏ QUAI</div>
+    <div class="sum-score s-high">84%</div>
+    <div class="sum-label">SIGNAL STRENGTH</div>
+    <div class="sum-tag t-high">✅ HIGH</div>
+    <div class="sum-bar" style="background:rgba(255,107,43,0.15)"><div style="width:84%;height:100%;background:var(--quai);border-radius:2px"></div></div>
+  </div>
+  <div class="sum-card" onclick="switchTab('hl')">
+    <div class="sum-asset" style="color:var(--hl)">💧 HYPE</div>
+    <div class="sum-score s-high">91%</div>
+    <div class="sum-label">SIGNAL STRENGTH</div>
+    <div class="sum-tag t-high">✅ HIGH</div>
+    <div class="sum-bar" style="background:rgba(0,191,255,0.15)"><div style="width:91%;height:100%;background:var(--hl);border-radius:2px"></div></div>
+  </div>
+  <div class="sum-card" onclick="switchTab('sol')">
+    <div class="sum-asset" style="color:var(--sol)">◎ SOL</div>
+    <div class="sum-score s-mid">78%</div>
+    <div class="sum-label">SIGNAL STRENGTH</div>
+    <div class="sum-tag t-mid">⚡ MID-HIGH</div>
+    <div class="sum-bar" style="background:rgba(153,69,255,0.15)"><div style="width:78%;height:100%;background:var(--sol);border-radius:2px"></div></div>
+  </div>
+  <div class="sum-card" onclick="switchTab('eth')">
+    <div class="sum-asset" style="color:var(--eth)">◆ ETH</div>
+    <div class="sum-score s-high">87%</div>
+    <div class="sum-label">SIGNAL STRENGTH</div>
+    <div class="sum-tag t-high">✅ HIGH</div>
+    <div class="sum-bar" style="background:rgba(98,126,234,0.15)"><div style="width:87%;height:100%;background:var(--eth);border-radius:2px"></div></div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab tab-quai active" onclick="switchTab('quai')">
+    <span class="tab-name">⛏ Quai</span>
+    <span class="tab-sub">SECTOR · PoW L1</span>
+  </div>
+  <div class="tab tab-hl" onclick="switchTab('hl')">
+    <span class="tab-name">💧 Hyperliquid</span>
+    <span class="tab-sub">NARRATIVE · PERP DEX</span>
+  </div>
+  <div class="tab tab-sol" onclick="switchTab('sol')">
+    <span class="tab-name">◎ Solana</span>
+    <span class="tab-sub">SECTOR · CONSUMER L1</span>
+  </div>
+  <div class="tab tab-eth" onclick="switchTab('eth')">
+    <span class="tab-name">◆ Ethereum</span>
+    <span class="tab-sub">NARRATIVE · SETTLEMENT</span>
+  </div>
+</div>
+
+
+<!-- ══════════ QUAI ══════════ -->
+<div class="panel active" id="panel-quai">
+  <div class="section-div"><span>01 — CORE THESIS</span></div>
+  <div class="card c-quai">
+    <div class="card-head"><div class="card-icon" style="background:rgba(255,107,43,0.12)">⛏</div><span class="card-label" style="color:var(--quai)">Asset / Protocol</span></div>
+    <div class="card-body">
+      <div class="field-val big" style="color:var(--quai)">QUAI NETWORK</div>
+      <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px">
+        <span class="badge bq">$QUAI</span><span class="badge bb">PoW L1</span><span class="badge bt">EVM COMPATIBLE</span><span class="badge bgold">DEFLATIONARY</span>
+      </div>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="card c-quai">
+      <div class="card-head"><div class="card-icon" style="background:rgba(255,107,43,0.12)">📌</div><span class="card-label" style="color:var(--quai)">Thesis</span><span class="card-sub">BELIEVE →</span></div>
+      <div class="card-body"><div class="field-val">Quai Network's merged-mining PoW architecture and hierarchical multi-chain design positions it as the only scalable, energy-aligned L1 at a time when BTC narrative revival makes PoW infrastructure politically and culturally relevant again — creating an asymmetric setup heading into full mainnet.</div></div>
+    </div>
+    <div class="card c-red">
+      <div class="card-head"><div class="card-icon" style="background:rgba(255,77,109,0.12)">⚡</div><span class="card-label" style="color:var(--red)">Counter-Thesis</span><span class="card-sub">RISK →</span></div>
+      <div class="card-body"><div class="field-val">PoW consensus may remain a narrative that never converts to DeFi TVL or developer adoption; if EVM rollups and modular L2s capture developer mindshare, Quai's architecture advantage becomes irrelevant regardless of mining efficiency.</div></div>
+    </div>
+  </div>
+  <div class="section-div"><span>02 — INVALIDATION & MILESTONES</span></div>
+  <div class="card c-red">
+    <div class="card-head"><div class="card-icon" style="background:rgba(255,77,109,0.12)">💀</div><span class="card-label" style="color:var(--red)">Invalidation Trigger</span><span class="card-sub">ONE CLEAR BREAKER</span></div>
+    <div class="card-body"><div class="field-val" style="color:var(--red)">Mainnet launches but 90-day post-launch TVL stays below $20M with fewer than 15 active dApps deployed — proving ecosystem failed to convert miner attention into developer and user adoption. Exit immediately.</div></div>
+  </div>
+  <div class="card c-teal">
+    <div class="card-head"><div class="card-icon" style="background:rgba(0,194,168,0.12)">🏁</div><span class="card-label" style="color:var(--teal)">Milestones — Must Happen</span><span class="card-sub">30–90 DAYS</span></div>
+    <div class="card-body">
+      <div class="m-row"><div class="m-num m-q">1</div><div class="field-val">30 days: Mainnet launch with confirmed merged-mining activation across at least 3 mining pools — verifiable on-chain hashrate growth above 10% MoM.</div></div>
+      <div class="m-row"><div class="m-num m-q">2</div><div class="field-val">60 days: QuaiSwapio DEX hits $5M+ 7-day trading volume and Quasdaq lists 10+ native assets — proving ecosystem products are live, not vaporware.</div></div>
+      <div class="m-row"><div class="m-num m-q">3</div><div class="field-val">90 days: 3+ independent dApp deployments outside core team, wallet DAU growth sustained above 2,000/day, and $QUAI deflationary burn mechanism confirmed active.</div></div>
+    </div>
+  </div>
+  <div class="section-div"><span>03 — SIGNAL STACK POSITION</span></div>
+  <div class="card c-quai">
+    <div class="card-head"><div class="card-icon" style="background:rgba(255,107,43,0.12)">📡</div><span class="card-label" style="color:var(--quai)">Discovery Layer</span><span class="card-sub">WHERE FOUND</span></div>
+    <div class="card-body">
+      <div class="stack-grid">
+        <div class="stack-btn L1 aL1"><span class="stack-num">L1</span><div class="stack-label">Builder / Dev</div><span class="stack-badge">LEADING ✓</span></div>
+        <div class="stack-btn L2 aL2"><span class="stack-num">L2</span><div class="stack-label">Smart Money</div><span class="stack-badge">LEADING ✓</span></div>
+        <div class="stack-btn L3"><span class="stack-num">L3</span><div class="stack-label">Alpha Community</div><span class="stack-badge">CONCURRENT</span></div>
+        <div class="stack-btn L4"><span class="stack-num">L4</span><div class="stack-label">KOL / Media</div><span class="stack-badge">LAGGING</span></div>
+        <div class="stack-btn L5"><span class="stack-num">L5</span><div class="stack-label">Retail / FOMO</div><span class="stack-badge">CONTRA</span></div>
+      </div>
+      <div class="ok-box">✅ LEGION APPROVED — Discovered at L1/L2. GitHub commits, testnet validator data, and mining pool activity confirmed before KOL coverage. You are early.</div>
+    </div>
+  </div>
+  <div class="section-div"><span>04 — TREND TYPE & LIFECYCLE</span></div>
+  <div class="two-col">
+    <div class="card c-blue">
+      <div class="card-head"><div class="card-icon" style="background:rgba(77,171,247,0.12)">📊</div><span class="card-label" style="color:var(--blue)">Trend Type</span></div>
+      <div class="card-body"><span class="trend-pill tp-sector">📐 Sector Trend</span><span class="trend-pill tp-off">🌊 Narrative</span><span class="trend-pill tp-off">⚡ Micro</span><div style="margin-top:8px;font-size:11px;color:var(--text-dim);font-family:'Space Mono',monospace">HORIZON: 6–18 months · Infrastructure shift</div></div>
+    </div>
+    <div class="card c-gold">
+      <div class="card-head"><div class="card-icon" style="background:rgba(240,180,41,0.12)">📈</div><span class="card-label" style="color:var(--gold)">S-Curve Position</span></div>
+      <div class="card-body">
+        <div class="lc-track">
+          <div class="lc-step a-emerging"><span class="lc-emoji">🌱</span><div class="lc-name" style="color:var(--green)">Emerging ✓</div><div class="lc-desc">Few believers, anomalies only</div></div>
+          <div class="lc-step"><span class="lc-emoji">🚀</span><div class="lc-name" style="color:var(--text-dim)">Accel.</div><div class="lc-desc">Next — post mainnet</div></div>
+          <div class="lc-step"><span class="lc-emoji">🔔</span><div class="lc-name" style="color:var(--text-dim)">Peak</div><div class="lc-desc">Not yet</div></div>
+          <div class="lc-step"><span class="lc-emoji">📉</span><div class="lc-name" style="color:var(--text-dim)">Decay</div><div class="lc-desc">—</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section-div"><span>05 — MINIMUM EVIDENCE STANDARD</span></div>
+  <div class="card" style="border-color:rgba(255,107,43,0.3)">
+    <div class="card-head"><div class="card-icon" style="background:rgba(255,107,43,0.12)">🔬</div><span class="card-label" style="color:var(--quai)">Confirmed Signals</span><span class="card-sub" style="color:var(--green)">3 CATS CONFIRMED ✅</span></div>
+    <div class="card-body">
+      <div class="cat-label" style="color:var(--teal)">ON-CHAIN (REQUIRED)</div>
+      <div class="ev-row"><div class="ev-check ck-q">✓</div><div><div class="ev-label">Testnet transaction volume growing MoM</div><div class="ev-sub">Sustained user activity across Iron Age testnet phases</div></div></div>
+      <div class="ev-row"><div class="ev-check ck-q">✓</div><div><div class="ev-label">Merged-mining hashrate increasing</div><div class="ev-sub">Multiple mining pools confirmed integration — capital commitment signal</div></div></div>
+      <div class="ev-row"><div class="ev-check ck-q">✓</div><div><div class="ev-label">Deflationary burn mechanics confirmed in contracts</div><div class="ev-sub">Tokenomics designed for supply reduction — not inflationary farming</div></div></div>
+      <div style="height:10px"></div>
+      <div class="cat-label" style="color:var(--blue)">SOCIAL / DEV</div>
+      <div class="ev-row"><div class="ev-check ck-q">✓</div><div><div class="ev-label">Active GitHub — protocol commits weekly</div><div class="ev-sub">go-quai repo: consistent releases, docs updates, audit completions</div></div></div>
+      <div class="ev-row"><div class="ev-check ck-q">✓</div><div><div class="ev-label">Growing Discord + Telegram validator community</div><div class="ev-sub">10,000+ community members pre-mainnet, organic not incentivized</div></div></div>
+      <div style="height:10px"></div>
+      <div class="cat-label" style="color:var(--gold)">MARKET / CATALYST</div>
+      <div class="ev-row"><div class="ev-check ck-q">✓</div><div><div class="ev-label">Mainnet launch imminent — confirmed catalyst</div><div class="ev-sub">Real binary event with timing — the kind of trigger that drives capital rotation</div></div></div>
+      <div class="ev-row"><div class="ev-check ck-q">✓</div><div><div class="ev-label">BTC narrative cycle tailwind</div><div class="ev-sub">PoW projects benefit during BTC institutional adoption phases — macro alignment</div></div></div>
+    </div>
+  </div>
+  <div class="section-div"><span>06 — BIAS & MANIPULATION RISKS</span></div>
+  <div class="card c-red">
+    <div class="card-head"><div class="card-icon" style="background:rgba(255,77,109,0.12)">🛡️</div><span class="card-label" style="color:var(--red)">What Can Be Faked?</span></div>
+    <div class="card-body">
+      <div class="risk-grid">
+        <span class="risk-pill risk-on">Incentivized testnet activity</span><span class="risk-pill risk-on">Mining pool coordination hype</span><span class="risk-pill risk-on">Survivorship bias (PoW L1s)</span><span class="risk-pill risk-on">Confirmation bias (aiobkhan.eth already in)</span><span class="risk-pill risk-off">Wash trading</span><span class="risk-pill risk-off">VC pump-dump</span><span class="risk-pill risk-off">Sybil airdrop</span>
+      </div>
+      <div class="warn-box">⚠️ ANTI-CONFIRMATION SEARCH REQUIRED:<br>Search: "Quai Network delay" · "go-quai exploit" · "PoW L1 failed 2024" · "Quai competitor advantage"</div>
+    </div>
+  </div>
+  <div class="section-div"><span>07 — DISCOVERY SURFACE</span></div>
+  <div class="card c-teal">
+    <div class="card-head"><div class="card-icon" style="background:rgba(0,194,168,0.12)">🔭</div><span class="card-label" style="color:var(--teal)">How Was This Found</span></div>
+    <div class="card-body">
+      <div class="surf-grid"><span class="surf-tag surf-on">GitHub commits</span><span class="surf-tag surf-on">Testnet validator data</span><span class="surf-tag surf-on">Mining pool announcements</span><span class="surf-tag surf-on">On-chain dashboard</span><span class="surf-tag surf-on">Niche Discord</span><span class="surf-tag surf-off">KOL thread</span><span class="surf-tag surf-off">Trending Twitter</span></div>
+    </div>
+  </div>
+  <div class="section-div"><span>08 — TIMING</span></div>
+  <div class="info-grid">
+    <div class="info-box"><div class="ib-label">RESEARCH DATE</div><div class="ib-val">May 2025</div></div>
+    <div class="info-box"><div class="ib-label">TARGET DATE</div><div class="ib-val">Q4 2025</div></div>
+    <div class="info-box"><div class="ib-label">TIME HORIZON</div><div class="ib-val">6–12 months</div></div>
+    <div class="info-box"><div class="ib-label">CONVICTION</div><div class="ib-val" style="color:var(--green)">HIGH</div></div>
+    <div class="info-box"><div class="ib-label">POSITION SIZE</div><div class="ib-val">Moderate (pre-mainnet)</div></div>
+    <div class="info-box"><div class="ib-label">RE-EVALUATE</div><div class="ib-val">90 days post-mainnet</div></div>
+  </div>
+  <div class="section-div"><span>09 — LEGION VERDICT</span></div>
+  <div class="verdict-bar">
+    <div><div class="v-label">Signal Strength</div><div class="v-score s-high">84%</div></div>
+    <div class="v-tag t-high">✅ HIGH CONVICTION</div>
+    <div class="v-note">Strong L1/L2 discovery, multi-layer on-chain evidence, real catalyst timing, and BTC cycle tailwind. Lifecycle is Emerging → pre-Acceleration. LEGION APPROVED. Size accordingly, monitor milestones strictly, and search actively for counter-evidence before adding. Survivorship bias is your biggest enemy here — PoW L1s have a graveyard.</div>
+  </div>
+</div>
+
+
+<!-- ══════════ HYPERLIQUID ══════════ -->
+<div class="panel" id="panel-hl">
+  <div class="section-div"><span>01 — CORE THESIS</span></div>
+  <div class="card c-hl">
+    <div class="card-head"><div class="card-icon" style="background:rgba(0,191,255,0.12)">💧</div><span class="card-label" style="color:var(--hl)">Asset / Protocol</span></div>
+    <div class="card-body">
+      <div class="field-val big" style="color:var(--hl)">HYPERLIQUID</div>
+      <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px">
+        <span class="badge bh">$HYPE</span><span class="badge bgold">PERP DEX L1</span><span class="badge bg">NO VC FUNDING</span><span class="badge br">FEE BUYBACK</span>
+      </div>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="card c-hl">
+      <div class="card-head"><div class="card-icon" style="background:rgba(0,191,255,0.12)">📌</div><span class="card-label" style="color:var(--hl)">Thesis</span><span class="card-sub">BELIEVE →</span></div>
+      <div class="card-body"><div class="field-val">Hyperliquid has built the only on-chain derivatives exchange that genuinely competes with CEX speed and liquidity — and with HyperEVM expanding it into a full L1 ecosystem, HYPE transitions from exchange token to programmable financial infrastructure with real fee-backed value accrual.</div></div>
+    </div>
+    <div class="card c-red">
+      <div class="card-head"><div class="card-icon" style="background:rgba(255,77,109,0.12)">⚡</div><span class="card-label" style="color:var(--red)">Counter-Thesis</span><span class="card-sub">RISK →</span></div>
+      <div class="card-body"><div class="field-val">A major smart contract exploit, validator centralization failure, or regulatory action targeting on-chain perps could wipe TVL overnight — and at current valuations, HYPE is priced for perfection, leaving little margin for execution risk during HyperEVM expansion.</div></div>
+    </div>
+  </div>
+  <div class="section-div"><span>02 — INVALIDATION & MILESTONES</span></div>
+  <div class="card c-red">
+    <div class="card-head"><div class="card-icon" style="background:rgba(255,77,109,0.12)">💀</div><span class="card-label" style="color:var(--red)">Invalidation Trigger</span><span class="card-sub">ONE CLEAR BREAKER</span></div>
+    <div class="card-body"><div class="field-val" style="color:var(--red)">Daily perpetual volume drops below $500M sustained for 30+ days while competitor DEX volume grows — proving Hyperliquid's moat is eroding. Also exit immediately on any confirmed exploit or validator security incident regardless of PR response.</div></div>
+  </div>
+  <div class="card c-teal">
+    <div class="card-head"><div class="card-icon" style="background:rgba(0,194,168,0.12)">🏁</div><span class="card-label" style="color:var(--teal)">Milestones — Must Happen</span><span class="card-sub">30–90 DAYS</span></div>
+    <div class="card-body">
+      <div class="m-row"><div class="m-num m-h">1</div><div class="field-val">30 days: HyperEVM mainnet attracts 5+ external dApp deployments beyond team projects — proving developer interest in the L1 layer, not just the exchange.</div></div>
+      <div class="m-row"><div class="m-num m-h">2</div><div class="field-val">60 days: HYPE fee buyback/burn rate confirmed growing — weekly buyback volume above $5M, showing protocol revenue is real and sustainable beyond airdrop hype.</div></div>
+      <div class="m-row"><div class="m-num m-h">3</div><div class="field-val">90 days: Total open interest stays above $3B and HLP vault TVL holds above $400M — proving institutional and LP capital is sticky, not just speculative.</div></div>
+    </div>
+  </div>
+  <div class="section-div"><span>03 — SIGNAL STACK POSITION</span></div>
+  <div class="card c-hl">
+    <div class="card-head"><div class="card-icon" style="background:rgba(0,191,255,0.12)">📡</div><span class="card-label" style="color:var(--hl)">Discovery Layer</span><span class="card-sub">WHERE FOUND</span></div>
+    <div class="card-body">
+      <div class="stack-grid">
+        <div class="stack-btn L1"><span class="stack-num">L1</span><div class="stack-label">Builder / Dev</div><span class="stack-badge">LEADING</span></div>
+        <div class="stack-btn L2 aL2"><span class="stack-num">L2</span><div class="stack-label">Smart Money</div><span class="stack-badge">LEADING ✓</span></div>
+        <div class="stack-btn L3 aL3"><span class="stack-num">L3</span><div class="stack-label">Alpha Community</div><span class="stack-badge">CONCURRENT ✓</span></div>
+        <div class="stack-btn L4"><span class="stack-num">L4</span><div class="stack-label">KOL / Media</div><span class="stack-badge">LAGGING</span></div>
+        <div class="stack-btn L5"><span class="stack-num">L5</span><div class="stack-label">Retail / FOMO</div><span class="stack-badge">CONTRA</span></div>
+      </div>
+      <div class="ok-box">✅ L2/L3 APPROVED — Found via on-chain volume dashboards and researcher deep-dives before mainstream coverage. Still valid but watch for L4 saturation signaling Peak phase.</div>
+    </div>
+  </div>
+  <div class="section-div"><span>04 — TREND TYPE & LIFECYCLE</span></div>
+  <div class="two-col">
+    <div class="card c-blue">
+      <div class="card-head"><div class="card-icon" style="background:rgba(77,171,247,0.12)">📊</div><span class="card-label" style="color:var(--blue)">Trend Type</span></div>
+      <div class="card-body"><span class="trend-pill tp-off">📐 Sector</span><span class="trend-pill tp-narrative">🌊 Narrative Trend</span><span class="trend-pill tp-off">⚡ Micro</span><div style="margin-top:8px;font-size:11px;color:var(--text-dim);font-family:'Space Mono',monospace">HORIZON: 3–9 months · Perp DEX + L1 narrative</div></div>
+    </div>
+    <div class="card c-gold">
+      <div class="card-head"><div class="card-icon" style="background:rgba(240,180,41,0.12)">📈</div><span class="card-label" style="color:var(--gold)">S-Curve Position</span></div>
+      <div class="card-body">
+        <div class="lc-track">
+          <div class="lc-step"><span class="lc-emoji">🌱</span><div class="lc-name" style="color:var(--text-dim)">Emerging</div><div class="lc-desc">Already passed</div></div>
+          <div class="lc-step a-accel"><span class="lc-emoji">🚀</span><div class="lc-name" style="color:var(--gold)">Accel. ✓</div><div class="lc-desc">HyperEVM live, compounding</div></div>
+          <div class="lc-step"><span class="lc-emoji">🔔</span><div class="lc-name" style="color:var(--text-dim)">Peak</div><div class="lc-desc">Watch closely</div></div>
+          <div class="lc-step"><span class="lc-emoji">📉</span><div class="lc-name" style="color:var(--text-dim)">Decay</div><div class="lc-desc">—</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section-div"><span>05 — MINIMUM EVIDENCE STANDARD</span></div>
+  <div class="card" style="border-color:rgba(0,191,255,0.3)">
+    <div class="card-head"><div class="card-icon" style="background:rgba(0,191,255,0.12)">🔬</div><span class="card-label" style="color:var(--hl)">Confirmed Signals</span><span class="card-sub" style="color:var(--green)">3 CATS CONFIRMED ✅</span></div>
+    <div class="card-body">
+      <div class="cat-label" style="color:var(--teal)">ON-CHAIN (REQUIRED)</div>
+      <div class="ev-row"><div class="ev-check ck-h">✓</div><div><div class="ev-label">$1B–$5B+ daily perpetual trading volume sustained</div><div class="ev-sub">Competing with Binance perps on peak days — real usage, not incentivized</div></div></div>
+      <div class="ev-row"><div class="ev-check ck-h">✓</div><div><div class="ev-label">HLP vault TVL $400M+ with consistent fee revenue</div><div class="ev-sub">Protocol earns real fees — not reliant on token emissions for LP yield</div></div></div>
+      <div class="ev-row"><div class="ev-check ck-h">✓</div><div><div class="ev-label">HYPE fee buyback confirmed on-chain weekly</div><div class="ev-sub">Deflationary pressure from real protocol revenue — not manufactured</div></div></div>
+      <div style="height:10px"></div>
+      <div class="cat-label" style="color:var(--blue)">SOCIAL / DEV</div>
+      <div class="ev-row"><div class="ev-check ck-h">✓</div><div><div class="ev-label">HyperEVM active development — weekly releases</div><div class="ev-sub">L1 expansion underway, not promised; devs already building on testnet</div></div></div>
+      <div class="ev-row"><div class="ev-check ck-h">✓</div><div><div class="ev-label">Strongest organic community in perp DEX space</div><div class="ev-sub">No VC unlock pressure — aligned holders, active traders, researcher coverage</div></div></div>
+      <div style="height:10px"></div>
+      <div class="cat-label" style="color:var(--gold)">MARKET / CATALYST</div>
+      <div class="ev-row"><div class="ev-check ck-h">✓</div><div><div class="ev-label">HyperEVM full mainnet — live binary catalyst</div><div class="ev-sub">L1 expansion creates new addressable market: DeFi, lending, options, RWA</div></div></div>
+      <div class="ev-row"><div class="ev-check ck-h">✓</div><div><div class="ev-label">Institutional on-chain perp trend accelerating</div><div class="ev-sub">Macro shift: traders moving to on-chain venues post-CEX trust collapse (FTX era)</div></div></div>
+    </div>
+  </div>
+  <div class="section-div"><span>06 — BIAS & MANIPULATION RISKS</span></div>
+  <div class="card c-red">
+    <div class="card-head"><div class="card-icon" style="background:rgba(255,77,109,0.12)">🛡️</div><span class="card-label" style="color:var(--red)">What Can Be Faked?</span></div>
+    <div class="card-body">
+      <div class="risk-grid">
+        <span class="risk-pill risk-on">Wash trading volume</span><span class="risk-pill risk-on">Validator centralization risk</span><span class="risk-pill risk-on">Hype cycle confusion</span><span class="risk-pill risk-on">Smart contract exploit risk</span><span class="risk-pill risk-on">Confirmation bias (hard to think bearish)</span><span class="risk-pill risk-off">Incentivized TVL</span><span class="risk-pill risk-off">VC dump pressure</span>
+      </div>
+      <div class="warn-box">⚠️ ANTI-CONFIRMATION SEARCH REQUIRED:<br>Search: "Hyperliquid exploit" · "HYPE centralization" · "wash trading Hyperliquid" · "HyperEVM competitor" · "Hyperliquid regulatory risk"</div>
+    </div>
+  </div>
+  <div class="section-div"><span>07 — DISCOVERY SURFACE</span></div>
+  <div class="card c-teal">
+    <div class="card-head"><div class="card-icon" style="background:rgba(0,194,168,0.12)">🔭</div><span class="card-label" style="color:var(--teal)">How Was This Found</span></div>
+    <div class="card-body">
+      <div class="surf-grid"><span class="surf-tag surf-on">On-chain dashboard (Hypurr)</span><span class="surf-tag surf-on">Researcher threads (L2/L3)</span><span class="surf-tag surf-on">Whale wallet tracking</span><span class="surf-tag surf-on">HLP vault data</span><span class="surf-tag surf-warn">KOL coverage increasing ⚠️</span><span class="surf-tag surf-off">Trending Twitter</span></div>
+      <div class="warn-box">⚠️ WATCH: KOL coverage is now ramping. Monitor for L4 saturation — when every big account is posting HYPE threads weekly, you are approaching Peak/Distribution territory.</div>
+    </div>
+  </div>
+  <div class="section-div"><span>08 — TIMING</span></div>
+  <div class="info-grid">
+    <div class="info-box"><div class="ib-label">RESEARCH DATE</div><div class="ib-val">May 2025</div></div>
+    <div class="info-box"><div class="ib-label">TARGET DATE</div><div class="ib-val">Q3 2025</div></div>
+    <div class="info-box"><div class="ib-label">TIME HORIZON</div><div class="ib-val">3–6 months</div></div>
+    <div class="info-box"><div class="ib-label">CONVICTION</div><div class="ib-val" style="color:var(--gold)">HIGH — SIZE CAREFULLY</div></div>
+    <div class="info-box"><div class="ib-label">POSITION SIZE</div><div class="ib-val">Large (in acceleration)</div></div>
+    <div class="info-box"><div class="ib-label">RE-EVALUATE</div><div class="ib-val">Every 30 days</div></div>
+  </div>
+  <div class="section-div"><span>09 — LEGION VERDICT</span></div>
+  <div class="verdict-bar">
+    <div><div class="v-label">Signal Strength</div><div class="v-score s-high">91%</div></div>
+    <div class="v-tag t-high">✅ HIGH CONVICTION</div>
+    <div class="v-note">Strongest evidence stack of any thesis in the portfolio. Real revenue, real volume, real on-chain data — not vibes. Discovery at L2/L3. Lifecycle: Acceleration (sweet spot). LEGION APPROVED at full size. Critical watch: KOL coverage is rising fast — if it hits full L4 saturation within 60 days, begin reducing. Your edge closes as the narrative spreads.</div>
+  </div>
+</div>
+
+
+<!-- ══════════ SOLANA ══════════ -->
+<div class="panel" id="panel-sol">
+  <div class="section-div"><span>01 — CORE THESIS</span></div>
+  <div class="card c-sol">
+    <div class="card-head"><div class="card-icon" style="background:rgba(153,69,255,0.12)">◎</div><span class="card-label" style="color:var(--sol)">Asset / Protocol</span></div>
+    <div class="card-body">
+      <div class="field-val big" style="color:var(--sol)">SOLANA</div>
+      <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px">
+        <span class="badge bs">$SOL</span><span class="badge bb">PoH + PoS L1</span><span class="badge bg">CONSUMER CHAIN</span><span class="badge bgold">DePIN LEADER</span><span class="badge bt">MEME/DEX HUB</span>
+      </div>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="card c-sol">
+      <div class="card-head"><div class="card-icon" style="background:rgba(153,69,255,0.12)">📌</div><span class="card-label" style="color:var(--sol)">Thesis</span><span class="card-sub">BELIEVE →</span></div>
+      <div class="card-body"><div class="field-val">Solana has completed its credibility reset post-FTX and is now the only L1 with genuine consumer traction — meme coins, DePIN, mobile wallets, and on-chain trading volume that rivals CEXes. The Firedancer validator upgrade and growing institutional spot ETF demand create a 2025 asymmetric setup where SOL re-rates from "discredited" to "primary consumer chain."</div></div>
+    </div>
+    <div class="card c-red">
+      <div class="card-head"><div class="card-icon" style="background:rgba(255,77,109,0.12)">⚡</div><span class="card-label" style="color:var(--red)">Counter-Thesis</span><span class="card-sub">RISK →</span></div>
+      <div class="card-body"><div class="field-val">Solana's consumer activity is dominated by meme coin speculation and low-quality trading — not sustainable product usage. If meme coin mania cools and DePIN fails to prove unit economics, Solana's on-chain volume collapses. Network outage history casts doubt on institutional adoption. EVM moat may prove too deep to overcome for serious DeFi capital.</div></div>
+    </div>
+  </div>
+  <div class="section-div"><span>02 — INVALIDATION & MILESTONES</span></div>
+  <div class="card c-red">
+    <div class="card-head"><div class="card-icon" style="background:rgba(255,77,109,0.12)">💀</div><span class="card-label" style="color:var(--red)">Invalidation Trigger</span><span class="card-sub">ONE CLEAR BREAKER</span></div>
+    <div class="card-body"><div class="field-val" style="color:var(--red)">Firedancer mainnet launch delayed past Q4 2025 AND network suffers another full outage (>4h) — signals the core engineering bet is failing. Also exit immediately if SOL spot ETF applications are rejected across all major issuers, removing the institutional re-rating catalyst.</div></div>
+  </div>
+  <div class="card c-teal">
+    <div class="card-head"><div class="card-icon" style="background:rgba(0,194,168,0.12)">🏁</div><span class="card-label" style="color:var(--teal)">Milestones — Must Happen</span><span class="card-sub">30–90 DAYS</span></div>
+    <div class="card-body">
+      <div class="m-row"><div class="m-num m-s">1</div><div class="field-val">30 days: Firedancer testnet validator count exceeds 50 with confirmed TPS benchmarks above 50,000 — public, verifiable engineering progress, not marketing.</div></div>
+      <div class="m-row"><div class="m-num m-s">2</div><div class="field-val">60 days: Solana DePIN projects (Helium, Hivemapper, Render on SOL) show MoM device count growth >8% — proving real-world network effects, not airdrop farming.</div></div>
+      <div class="m-row"><div class="m-num m-s">3</div><div class="field-val">90 days: At least one SOL spot ETF receives SEC approval or formal positive review — the institutional re-rating catalyst that closes the gap with BTC/ETH institutional flows.</div></div>
+    </div>
+  </div>
+  <div class="section-div"><span>03 — SIGNAL STACK POSITION</span></div>
+  <div class="card c-sol">
+    <div class="card-head"><div class="card-icon" style="background:rgba(153,69,255,0.12)">📡</div><span class="card-label" style="color:var(--sol)">Discovery Layer</span><span class="card-sub">WHERE FOUND</span></div>
+    <div class="card-body">
+      <div class="stack-grid">
+        <div class="stack-btn L1 aL1"><span class="stack-num">L1</span><div class="stack-label">Builder / Dev</div><span class="stack-badge">LEADING ✓</span></div>
+        <div class="stack-btn L2 aL2"><span class="stack-num">L2</span><div class="stack-label">Smart Money</div><span class="stack-badge">LEADING ✓</span></div>
+        <div class="stack-btn L3 aL3"><span class="stack-num">L3</span><div class="stack-label">Alpha Community</div><span class="stack-badge">CONCURRENT ✓</span></div>
+        <div class="stack-btn L4"><span class="stack-num">L4</span><div class="stack-label">KOL / Media</div><span class="stack-badge">LAGGING</span></div>
+        <div class="stack-btn L5"><span class="stack-num">L5</span><div class="stack-label">Retail / FOMO</div><span class="stack-badge">RISING ⚠</span></div>
+      </div>
+      <div class="caution-box">⚠️ L1/L2/L3 CONFIRMED — But L5 retail visibility is rising. Solana is no longer obscure. The edge is thesis quality and catalyst timing, not information asymmetry. Size carefully.</div>
+    </div>
+  </div>
+  <div class="section-div"><span>04 — TREND TYPE & LIFECYCLE</span></div>
+  <div class="two-col">
+    <div class="card c-blue">
+      <div class="card-head"><div class="card-icon" style="background:rgba(77,171,247,0.12)">📊</div><span class="card-label" style="color:var(--blue)">Trend Type</span></div>
+      <div class="card-body"><span class="trend-pill tp-sector">📐 Sector Trend</span><span class="trend-pill tp-off">🌊 Narrative</span><span class="trend-pill tp-off">⚡ Micro</span><div style="margin-top:8px;font-size:11px;color:var(--text-dim);font-family:'Space Mono',monospace">HORIZON: 6–18 months · Consumer L1 re-rating</div></div>
+    </div>
+    <div class="card c-gold">
+      <div class="card-head"><div class="card-icon" style="background:rgba(240,180,41,0.12)">📈</div><span class="card-label" style="color:var(--gold)">S-Curve Position</span></div>
+      <div class="card-body">
+        <div class="lc-track">
+          <div class="lc-step"><span class="lc-emoji">🌱</span><div class="lc-name" style="color:var(--text-dim)">Emerging</div><div class="lc-desc">Passed (2023)</div></div>
+          <div class="lc-step a-accel"><span class="lc-emoji">🚀</span><div class="lc-name" style="color:var(--gold)">Accel. ✓</div><div class="lc-desc">Volume + DePIN compounding</div></div>
+          <div class="lc-step"><span class="lc-emoji">🔔</span><div class="lc-name" style="color:var(--text-dim)">Peak</div><div class="lc-desc">Watch ETF approval</div></div>
+          <div class="lc-step"><span class="lc-emoji">📉</span><div class="lc-name" style="color:var(--text-dim)">Decay</div><div class="lc-desc">—</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section-div"><span>05 — MINIMUM EVIDENCE STANDARD</span></div>
+  <div class="card" style="border-color:rgba(153,69,255,0.3)">
+    <div class="card-head"><div class="card-icon" style="background:rgba(153,69,255,0.12)">🔬</div><span class="card-label" style="color:var(--sol)">Confirmed Signals</span><span class="card-sub" style="color:var(--green)">3 CATS CONFIRMED ✅</span></div>
+    <div class="card-body">
+      <div class="cat-label" style="color:var(--teal)">ON-CHAIN (REQUIRED)</div>
+      <div class="ev-row"><div class="ev-check ck-s">✓</div><div><div class="ev-label">Daily DEX volume consistently $1–3B+ (Raydium, Jupiter, Orca)</div><div class="ev-sub">On-chain trading volume rival to major CEXes — real fee revenue, real users</div></div></div>
+      <div class="ev-row"><div class="ev-check ck-s">✓</div><div><div class="ev-label">DePIN device counts growing MoM across 3+ networks</div><div class="ev-sub">Helium, Hivemapper, DIMO showing real hardware deployment — capital committed</div></div></div>
+      <div class="ev-row"><div class="ev-check ck-s">✓</div><div><div class="ev-label">Active wallet counts growing — 1M+ daily active wallets</div><div class="ev-sub">Genuine consumer traction across Phantom, Backpack, and mobile wallets</div></div></div>
+      <div style="height:10px"></div>
+      <div class="cat-label" style="color:var(--blue)">SOCIAL / DEV</div>
+      <div class="ev-row"><div class="ev-check ck-s">✓</div><div><div class="ev-label">Firedancer development public and verifiable on GitHub</div><div class="ev-sub">Jump Crypto engineering commitment — not vaporware, production testnet running</div></div></div>
+      <div class="ev-row"><div class="ev-check ck-s">✓</div><div><div class="ev-label">Breakpoint 2024 builder count exceeded 2023 — hackathon growth YoY</div><div class="ev-sub">Developer pipeline healthy; Solana Foundation grants actively deploying</div></div></div>
+      <div style="height:10px"></div>
+      <div class="cat-label" style="color:var(--gold)">MARKET / CATALYST</div>
+      <div class="ev-row"><div class="ev-check ck-s">✓</div><div><div class="ev-label">SOL spot ETF applications filed by Franklin Templeton, VanEck, Canary Capital</div><div class="ev-sub">Institutional product pipeline following BTC/ETH ETF playbook — real binary catalyst</div></div></div>
+      <div class="ev-row"><div class="ev-check ck-s">✓</div><div><div class="ev-label">Firedancer mainnet upgrade confirmed in 2025 roadmap</div><div class="ev-sub">Single biggest engineering catalyst — resolves outage risk and unlocks TPS ceiling</div></div></div>
+    </div>
+  </div>
+  <div class="section-div"><span>06 — BIAS & MANIPULATION RISKS</span></div>
+  <div class="card c-red">
+    <div class="card-head"><div class="card-icon" style="background:rgba(255,77,109,0.12)">🛡️</div><span class="card-label" style="color:var(--red)">What Can Be Faked?</span></div>
+    <div class="card-body">
+      <div class="risk-grid">
+        <span class="risk-pill risk-on">Meme coin volume = wash trading</span><span class="risk-pill risk-on">DePIN device inflation</span><span class="risk-pill risk-on">ETF approval timeline overconfidence</span><span class="risk-pill risk-on">FTX rehabilitation narrative bias</span><span class="risk-pill risk-on">Survivor bias — only counting Solana wins</span><span class="risk-pill risk-off">VC dump pressure</span><span class="risk-pill risk-off">Airdrop sybil wash</span>
+      </div>
+      <div class="warn-box">⚠️ ANTI-CONFIRMATION SEARCH REQUIRED:<br>Search: "Solana outage history" · "Firedancer delay 2025" · "DePIN unit economics failure" · "SOL ETF rejected" · "Solana validator centralization"</div>
+    </div>
+  </div>
+  <div class="section-div"><span>07 — DISCOVERY SURFACE</span></div>
+  <div class="card c-teal">
+    <div class="card-head"><div class="card-icon" style="background:rgba(0,194,168,0.12)">🔭</div><span class="card-label" style="color:var(--teal)">How Was This Found</span></div>
+    <div class="card-body">
+      <div class="surf-grid"><span class="surf-tag surf-on">On-chain DEX dashboards</span><span class="surf-tag surf-on">DePIN tracker sites</span><span class="surf-tag surf-on">SEC ETF filing tracker</span><span class="surf-tag surf-on">Jump Crypto GitHub (Firedancer)</span><span class="surf-tag surf-on">Validator monitor tools</span><span class="surf-tag surf-warn">KOL coverage rising ⚠️</span><span class="surf-tag surf-off">Trending Twitter</span></div>
+      <div class="warn-box">⚠️ WATCH: Solana is a mainstream narrative now. Your edge is catalyst timing (Firedancer + ETF) and thesis discipline — not information advantage.</div>
+    </div>
+  </div>
+  <div class="section-div"><span>08 — TIMING</span></div>
+  <div class="info-grid">
+    <div class="info-box"><div class="ib-label">RESEARCH DATE</div><div class="ib-val">May 2025</div></div>
+    <div class="info-box"><div class="ib-label">TARGET DATE</div><div class="ib-val">Q4 2025</div></div>
+    <div class="info-box"><div class="ib-label">TIME HORIZON</div><div class="ib-val">6–12 months</div></div>
+    <div class="info-box"><div class="ib-label">CONVICTION</div><div class="ib-val" style="color:var(--gold)">HIGH — SIZED MID</div></div>
+    <div class="info-box"><div class="ib-label">POSITION SIZE</div><div class="ib-val">Moderate (not early)</div></div>
+    <div class="info-box"><div class="ib-label">RE-EVALUATE</div><div class="ib-val">Every 30 days on ETF news</div></div>
+  </div>
+  <div class="section-div"><span>09 — LEGION VERDICT</span></div>
+  <div class="verdict-bar">
+    <div><div class="v-label">Signal Strength</div><div class="v-score s-mid">78%</div></div>
+    <div class="v-tag t-mid">⚡ MODERATE-HIGH CONVICTION</div>
+    <div class="v-note">Strong on-chain evidence, real consumer traction, and two hard binary catalysts (Firedancer + ETF). Lifecycle: Acceleration. Risk: you are NOT early — price already reflects the recovery. Your edge is in catalyst timing. Size moderate. Watch L5 retail saturation and the two invalidation triggers strictly.</div>
+  </div>
+</div>
+
+
+<!-- ══════════ ETHEREUM ══════════ -->
+<div class="panel" id="panel-eth">
+  <div class="section-div"><span>01 — CORE THESIS</span></div>
+  <div class="card c-eth">
+    <div class="card-head"><div class="card-icon" style="background:rgba(98,126,234,0.12)">◆</div><span class="card-label" style="color:var(--eth)">Asset / Protocol</span></div>
+    <div class="card-body">
+      <div class="field-val big" style="color:var(--eth)">ETHEREUM</div>
+      <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px">
+        <span class="badge be">$ETH</span><span class="badge bb">SETTLEMENT L1</span><span class="badge bg">STAKING YIELD</span><span class="badge br">EIP-1559 DEFLATIONARY</span><span class="badge bt">ROLLUP ECOSYSTEM</span><span class="badge bgold">RWA ANCHOR CHAIN</span>
+      </div>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="card c-eth">
+      <div class="card-head"><div class="card-icon" style="background:rgba(98,126,234,0.12)">📌</div><span class="card-label" style="color:var(--eth)">Thesis</span><span class="card-sub">BELIEVE →</span></div>
+      <div class="card-body"><div class="field-val">Ethereum is undergoing a structural re-rating — from "L1 gas chain" to "programmable settlement and yield layer." Spot ETH ETFs with staking yield inclusion, the Pectra upgrade activating EIP-7702 account abstraction, and real-world asset tokenization gravitating to Ethereum as the only credibly neutral chain creates a macro institutional bid that won't appear in on-chain metrics until it's fully priced.</div></div>
+    </div>
+    <div class="card c-red">
+      <div class="card-head"><div class="card-icon" style="background:rgba(255,77,109,0.12)">⚡</div><span class="card-label" style="color:var(--red)">Counter-Thesis</span><span class="card-sub">RISK →</span></div>
+      <div class="card-body"><div class="field-val">Ethereum's rollup-centric roadmap exports fee revenue to L2s, permanently compressing L1 fee burn and weakening the ETH deflation case. If the ETH/BTC ratio continues its multi-year structural decline and retail never returns to Ethereum DeFi, institutional staking yield alone may not justify current valuations vs BTC or SOL growth rates.</div></div>
+    </div>
+  </div>
+  <div class="section-div"><span>02 — INVALIDATION & MILESTONES</span></div>
+  <div class="card c-red">
+    <div class="card-head"><div class="card-icon" style="background:rgba(255,77,109,0.12)">💀</div><span class="card-label" style="color:var(--red)">Invalidation Trigger</span><span class="card-sub">ONE CLEAR BREAKER</span></div>
+    <div class="card-body"><div class="field-val" style="color:var(--red)">ETH spot ETF staking yield inclusion is formally blocked by the SEC AND ETH/BTC ratio breaks below 0.03 on weekly close — this combination confirms both institutional premium and ecosystem relevance are collapsing simultaneously. Exit and re-evaluate framework entirely.</div></div>
+  </div>
+  <div class="card c-teal">
+    <div class="card-head"><div class="card-icon" style="background:rgba(0,194,168,0.12)">🏁</div><span class="card-label" style="color:var(--teal)">Milestones — Must Happen</span><span class="card-sub">30–90 DAYS</span></div>
+    <div class="card-body">
+      <div class="m-row"><div class="m-num m-e">1</div><div class="field-val">30 days: Pectra upgrade ships on mainnet with EIP-7702 confirmed — the account abstraction unlock that enables consumer-grade wallet UX and removes the largest friction point for non-crypto native users.</div></div>
+      <div class="m-row"><div class="m-num m-e">2</div><div class="field-val">60 days: SEC provides formal written guidance on ETH ETF staking yield inclusion — even a neutral response resets institutional allocation timeline. Positive = major catalyst. Rejection = re-evaluate sizing.</div></div>
+      <div class="m-row"><div class="m-num m-e">3</div><div class="field-val">90 days: RWA tokenized asset volume on Ethereum (Ondo, BlackRock BUIDL, Franklin OnChain) exceeds $10B cumulative — proving institutional use case is real and creating structural buying pressure.</div></div>
+    </div>
+  </div>
+  <div class="section-div"><span>03 — SIGNAL STACK POSITION</span></div>
+  <div class="card c-eth">
+    <div class="card-head"><div class="card-icon" style="background:rgba(98,126,234,0.12)">📡</div><span class="card-label" style="color:var(--eth)">Discovery Layer</span><span class="card-sub">WHERE FOUND</span></div>
+    <div class="card-body">
+      <div class="stack-grid">
+        <div class="stack-btn L1 aL1"><span class="stack-num">L1</span><div class="stack-label">Builder / Dev</div><span class="stack-badge">LEADING ✓</span></div>
+        <div class="stack-btn L2 aL2"><span class="stack-num">L2</span><div class="stack-label">Smart Money</div><span class="stack-badge">LEADING ✓</span></div>
+        <div class="stack-btn L3"><span class="stack-num">L3</span><div class="stack-label">Alpha Community</div><span class="stack-badge">LAGGING</span></div>
+        <div class="stack-btn L4"><span class="stack-num">L4</span><div class="stack-label">KOL / Media</div><span class="stack-badge">MIXED</span></div>
+        <div class="stack-btn L5"><span class="stack-num">L5</span><div class="stack-label">Retail / FOMO</div><span class="stack-badge">CONTRA</span></div>
+      </div>
+      <div class="ok-box">✅ CONTRARIAN SETUP — Ethereum is currently under-loved by retail (ETH/BTC ratio suppressed) but institutional accumulation signals (ETF flows, RWA deployments, staking ETF filings) are leading. The crowd is not here yet.</div>
+    </div>
+  </div>
+  <div class="section-div"><span>04 — TREND TYPE & LIFECYCLE</span></div>
+  <div class="two-col">
+    <div class="card c-blue">
+      <div class="card-head"><div class="card-icon" style="background:rgba(77,171,247,0.12)">📊</div><span class="card-label" style="color:var(--blue)">Trend Type</span></div>
+      <div class="card-body"><span class="trend-pill tp-off">📐 Sector</span><span class="trend-pill tp-narrative">🌊 Narrative Trend</span><span class="trend-pill tp-off">⚡ Micro</span><div style="margin-top:8px;font-size:11px;color:var(--text-dim);font-family:'Space Mono',monospace">HORIZON: 6–12 months · Institutional re-rating narrative</div></div>
+    </div>
+    <div class="card c-gold">
+      <div class="card-head"><div class="card-icon" style="background:rgba(240,180,41,0.12)">📈</div><span class="card-label" style="color:var(--gold)">S-Curve Position</span></div>
+      <div class="card-body">
+        <div class="lc-track">
+          <div class="lc-step a-emerging"><span class="lc-emoji">🌱</span><div class="lc-name" style="color:var(--green)">Emerging ✓</div><div class="lc-desc">Institutional narrative forming</div></div>
+          <div class="lc-step"><span class="lc-emoji">🚀</span><div class="lc-name" style="color:var(--text-dim)">Accel.</div><div class="lc-desc">Awaits ETF staking catalyst</div></div>
+          <div class="lc-step"><span class="lc-emoji">🔔</span><div class="lc-name" style="color:var(--text-dim)">Peak</div><div class="lc-desc">Post-ETF staking approval</div></div>
+          <div class="lc-step"><span class="lc-emoji">📉</span><div class="lc-name" style="color:var(--text-dim)">Decay</div><div class="lc-desc">—</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section-div"><span>05 — MINIMUM EVIDENCE STANDARD</span></div>
+  <div class="card" style="border-color:rgba(98,126,234,0.3)">
+    <div class="card-head"><div class="card-icon" style="background:rgba(98,126,234,0.12)">🔬</div><span class="card-label" style="color:var(--eth)">Confirmed Signals</span><span class="card-sub" style="color:var(--green)">3 CATS CONFIRMED ✅</span></div>
+    <div class="card-body">
+      <div class="cat-label" style="color:var(--teal)">ON-CHAIN (REQUIRED)</div>
+      <div class="ev-row"><div class="ev-check ck-e">✓</div><div><div class="ev-label">$8B+ RWA tokenized assets live on Ethereum mainnet</div><div class="ev-sub">BlackRock BUIDL, Ondo USDY, Franklin Templeton FOBXX — real institutional capital on-chain</div></div></div>
+      <div class="ev-row"><div class="ev-check ck-e">✓</div><div><div class="ev-label">28M+ ETH staked — 23%+ of supply locked in consensus</div><div class="ev-sub">Record staking participation creates supply overhang for selling pressure reduction</div></div></div>
+      <div class="ev-row"><div class="ev-check ck-e">✓</div><div><div class="ev-label">EIP-1559 fee burn: 1.5M+ ETH burned since Merge</div><div class="ev-sub">Deflationary mechanism active — net issuance negative on high-activity periods</div></div></div>
+      <div style="height:10px"></div>
+      <div class="cat-label" style="color:var(--blue)">SOCIAL / DEV</div>
+      <div class="ev-row"><div class="ev-check ck-e">✓</div><div><div class="ev-label">Pectra upgrade: EIP-7702 account abstraction confirmed for 2025</div><div class="ev-sub">Largest UX upgrade since the Merge — removes key user onboarding friction</div></div></div>
+      <div class="ev-row"><div class="ev-check ck-e">✓</div><div><div class="ev-label">L2 ecosystem TVL $50B+ (Arbitrum, Optimism, Base, zkSync)</div><div class="ev-sub">Ethereum as settlement layer is working — L2s prove the rollup roadmap is real</div></div></div>
+      <div style="height:10px"></div>
+      <div class="cat-label" style="color:var(--gold)">MARKET / CATALYST</div>
+      <div class="ev-row"><div class="ev-check ck-e">✓</div><div><div class="ev-label">ETH spot ETF live and accumulating (BlackRock iShares ETHA)</div><div class="ev-sub">$3B+ AUM in ETH ETFs; staking yield approval would structurally increase demand</div></div></div>
+      <div class="ev-row"><div class="ev-check ck-e">✓</div><div><div class="ev-label">Multiple staking ETF applications filed (Fidelity, BlackRock)</div><div class="ev-sub">If approved, creates yield-bearing institutional product — structurally different demand driver</div></div></div>
+    </div>
+  </div>
+  <div class="section-div"><span>06 — BIAS & MANIPULATION RISKS</span></div>
+  <div class="card c-red">
+    <div class="card-head"><div class="card-icon" style="background:rgba(255,77,109,0.12)">🛡️</div><span class="card-label" style="color:var(--red)">What Can Be Faked?</span></div>
+    <div class="card-body">
+      <div class="risk-grid">
+        <span class="risk-pill risk-on">ETH/BTC suppression = bear signal ignored</span><span class="risk-pill risk-on">RWA volume overstated (rehypothecation)</span><span class="risk-pill risk-on">L2 TVL double-counting</span><span class="risk-pill risk-on">Staking ETF approval timeline speculation</span><span class="risk-pill risk-on">Ethereum maxi confirmation bias</span><span class="risk-pill risk-off">Wash trading</span><span class="risk-pill risk-off">VC unlock</span>
+      </div>
+      <div class="warn-box">⚠️ ANTI-CONFIRMATION SEARCH REQUIRED:<br>Search: "ETH ETF staking rejected" · "Ethereum L2 cannibalization" · "ETH/BTC bear market" · "Solana eating Ethereum market share" · "RWA tokenization competitor"<br>The Ethereum community has the strongest narrative machinery in crypto — disconfirmation is especially hard. The ETH/BTC chart is the one signal you must NOT explain away.</div>
+    </div>
+  </div>
+  <div class="section-div"><span>07 — DISCOVERY SURFACE</span></div>
+  <div class="card c-teal">
+    <div class="card-head"><div class="card-icon" style="background:rgba(0,194,168,0.12)">🔭</div><span class="card-label" style="color:var(--teal)">How Was This Found</span></div>
+    <div class="card-body">
+      <div class="surf-grid"><span class="surf-tag surf-on">RWA tracker (rwa.xyz)</span><span class="surf-tag surf-on">SEC EDGAR ETF filings</span><span class="surf-tag surf-on">ETH ETF AUM dashboards</span><span class="surf-tag surf-on">Ethereum AllCoreDevs calls</span><span class="surf-tag surf-on">Staking data (Rated.network)</span><span class="surf-tag surf-warn">Institutional research increasing ⚠️</span><span class="surf-tag surf-off">Retail social media</span></div>
+      <div class="ok-box">✅ CONTRARIAN SETUP — Retail is currently underweight ETH relative to BTC and SOL. Institutional discovery signals are running ahead of crowd awareness. Rare institutional-leading, retail-lagging moment.</div>
+    </div>
+  </div>
+  <div class="section-div"><span>08 — TIMING</span></div>
+  <div class="info-grid">
+    <div class="info-box"><div class="ib-label">RESEARCH DATE</div><div class="ib-val">May 2025</div></div>
+    <div class="info-box"><div class="ib-label">TARGET DATE</div><div class="ib-val">Q3–Q4 2025</div></div>
+    <div class="info-box"><div class="ib-label">TIME HORIZON</div><div class="ib-val">6–12 months</div></div>
+    <div class="info-box"><div class="ib-label">CONVICTION</div><div class="ib-val" style="color:var(--green)">HIGH</div></div>
+    <div class="info-box"><div class="ib-label">POSITION SIZE</div><div class="ib-val">Large (contrarian setup)</div></div>
+    <div class="info-box"><div class="ib-label">RE-EVALUATE</div><div class="ib-val">On each ETF news event</div></div>
+  </div>
+  <div class="section-div"><span>09 — LEGION VERDICT</span></div>
+  <div class="verdict-bar">
+    <div><div class="v-label">Signal Strength</div><div class="v-score s-high">87%</div></div>
+    <div class="v-tag t-high">✅ HIGH CONVICTION</div>
+    <div class="v-note">Strongest institutional signal quality of any thesis this cycle. Real on-chain RWA adoption, record staking, EIP-7702 upgrade imminent, and staking ETF approval as hard binary catalyst. Lifecycle: Emerging → pre-Acceleration (contrarian window). LEGION APPROVED at large size. The one counter-signal to watch obsessively is ETH/BTC ratio — if it keeps declining despite all positive catalysts, the market is telling you something the thesis is missing. Respect price.</div>
+  </div>
+</div>
+
+<button class="export-btn" onclick="window.print()">⬇ EXPORT / PRINT ALL FOUR THESIS CARDS</button>
+
+</div>
+
+<script>
+function switchTab(t){
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.sum-card').forEach(el=>{
+    el.className=el.className.replace(/active-sum-\w+/g,'').trim();
+  });
+  document.querySelector('.tab-'+t).classList.add('active');
+  document.getElementById('panel-'+t).classList.add('active');
+  document.querySelectorAll('.sum-card').forEach(el=>{
+    if(el.getAttribute('onclick').includes("'"+t+"'")){
+      el.classList.add('active-sum-'+t);
+    }
+  });
+}
+</script>
+</body>
+</html>
